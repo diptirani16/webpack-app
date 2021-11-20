@@ -2,6 +2,10 @@ const path = require("path");
 const common = require('./webpack.common');
 const { merge } = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = merge(common, {
     mode: "production",
@@ -9,5 +13,35 @@ module.exports = merge(common, {
         filename: "[name].[contenthash].bundle.js",
         path: path.resolve(__dirname, "dist")
     },
-    plugins: [new CleanWebpackPlugin()]
+    optimization: {
+        minimizer: [
+            new CssMinimizerWebpackPlugin(), 
+            new TerserPlugin(),   // TerserPlugin is a default minimizer for js
+            new HtmlWebpackPlugin({
+                template: "./src/template.html",
+                minify: {
+                    removeAttributeQuotes: true,
+                    collapseWhitespace: true,
+                    removeComments: true
+                }
+            })
+        ]
+    },
+    plugins: [
+        new MiniCssExtractPlugin({ filename: "[name].[contenthash].css" }), 
+        new CleanWebpackPlugin()
+    ],
+    module: {
+        rules: [
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader, // step 3. extracts css into files
+                    "css-loader", // step 2. turns css to commonjs
+                    "sass-loader" // step 1. turns sass to css
+                ]
+
+            },
+        ]
+    }
 });
