@@ -16,6 +16,23 @@ module.exports = {
                     "sass-loader" // step 1. turns sass to css
                 ]
 
+            },
+            {
+                test: /\.html$/,
+                use: ["html-loader"]
+            },
+            {
+                test: /\.(svg|png|jpg|gif)$/,
+                use: [ {
+                    loader: "file-loader",
+                    options: {
+                        esModule: false,
+                        name: "[name].[hash].[ext]",
+                        outputPath: "imgs"
+                    }
+                }
+            ],
+            type: 'javascript/auto'
             }
         ]
     }
